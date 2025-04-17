@@ -1,0 +1,1 @@
+# vocaloid6_public_sdk
