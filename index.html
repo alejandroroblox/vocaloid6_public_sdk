@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOCALOID6 Public SDK</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>VOCALOID6 Public SDK</h1>
+
+    <form id="voicebankForm">
+        <!-- Nombre del voicebank -->
+        <div class="form-group">
+            <label for="voicebankName">Nombre del Voicebank:</label>
+            <input type="text" id="voicebankName" name="voicebankName" placeholder="Introduce el nombre" required>
+        </div>
+
+        <!-- Género del voicebank -->
+        <div class="form-group">
+            <label for="voicebankGender">Género del Voicebank:</label>
+            <select id="voicebankGender" name="voicebankGender" required>
+                <option value="femenino">Femenino</option>
+                <option value="masculino">Masculino</option>
+                <option value="otro">Otro</option>
+            </select>
+        </div>
+
+        <!-- Importar archivos .wav -->
+        <div class="form-group">
+            <label for="wavFiles">Archivos WAV:</label>
+            <input type="file" id="wavFiles" name="wavFiles" accept=".wav" multiple required>
+        </div>
+
+        <!-- Carpeta destino -->
+        <div class="form-group">
+            <label for="destinationFolder">Carpeta Destino:</label>
+            <input type="text" id="destinationFolder" name="destinationFolder" placeholder="Selecciona una carpeta" required>
+        </div>
+
+        <!-- Botón para generar voicebank -->
+        <button type="submit">Crear Voicebank</button>
+    </form>
+
+    <script src="script.js"></script>
+</body>
+</html>
