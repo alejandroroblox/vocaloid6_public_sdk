@@ -1,36 +1,138 @@
+/* General */
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    padding: 20px;
-    background-color: #f9f9f9;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(120deg, #a18cd1, #fbc2eb); /* Fondo degradado mejorado */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
 }
 
+/* Título */
 h1 {
+    color: #fff; /* Blanco para resaltar en el fondo degradado */
+    font-size: 3em;
+    margin-bottom: 20px;
+    text-shadow: 2px 4px rgba(0, 0, 0, 0.2); /* Sombra del texto */
+    text-align: center;
+    background: linear-gradient(to right, #6a11cb, #2575fc); /* Texto degradado */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Contenedor de formulario */
+form {
+    background: rgba(255, 255, 255, 0.9); /* Fondo semi-transparente */
+    padding: 30px;
+    border-radius: 20px; /* Bordes redondeados */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Sombra elegante */
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.8s ease; /* Animación suave */
+}
+
+/* Animación para el formulario */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Etiquetas */
+label {
+    display: block;
+    text-align: left;
+    margin-bottom: 8px;
+    font-weight: bold;
     color: #333;
 }
 
-label {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
+/* Grupos de campos */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
+/* Inputs y listas desplegables */
 input, select, button {
-    padding: 10px;
-    font-size: 14px;
+    width: 100%;
+    padding: 12px 15px;
     margin-top: 5px;
+    font-size: 1em;
+    border: 2px solid #ddd;
+    border-radius: 10px; /* Bordes más redondeados */
+    outline: none;
+    transition: all 0.3s ease-in-out;
 }
 
+input:focus, select:focus {
+    border-color: #a18cd1; /* Color de enfoque personalizado */
+    box-shadow: 0 0 8px rgba(161, 140, 209, 0.8);
+}
+
+/* Botón */
 button {
-    background-color: #4CAF50;
-    color: white;
+    background: linear-gradient(120deg, #2575fc, #6a11cb); /* Degradado elegante */
+    color: #fff;
+    font-weight: bold;
     border: none;
+    border-radius: 50px;
     cursor: pointer;
+    padding: 15px;
+    font-size: 1.2em;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 button:hover {
-    background-color: #45a049;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(161, 140, 209, 0.5);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(161, 140, 209, 0.5);
+}
+
+/* Íconos decorativos */
+form:before {
+    content: "🎵";
+    font-size: 3em;
+    display: block;
+    margin-bottom: 10px;
+    color: #2575fc;
+    animation: bounce 1.5s infinite; /* Animación para el ícono */
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Links decorativos */
+a {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: none;
+    color: #2575fc;
+    font-weight: bold;
+    font-size: 1.1em;
+    transition: color 0.3s, transform 0.3s;
+}
+
+a:hover {
+    color: #6a11cb;
+    transform: scale(1.1);
 }
