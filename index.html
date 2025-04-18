@@ -118,6 +118,31 @@
 "Samples"="${Array.from(wavFiles).map(file => file.name).join(';')}"
 `);
 
+            // Crear archivo voice.vvd
+            zip.file("voice.vvd", `# Archivo VVD
+VoiceBank: ${voicebankName}
+Gender: ${voicebankGender}
+Language: ${voicebankLanguage}
+Frequency Range: 100Hz-4000Hz
+Duration: 3-5 segundos por muestra`);
+
+            // Crear archivo settings.v6
+            zip.file("settings.v6", `# Archivo V6
+VoiceBankName=${voicebankName}
+VoiceBankGender=${voicebankGender}
+Language=${voicebankLanguage}
+ToneAdjustment=True
+NoiseReduction=True`);
+
+            // Crear archivo parameters.dat
+            zip.file("parameters.dat", `# Archivo DAT
+VoiceBank=${voicebankName}
+Gender=${voicebankGender}
+Language=${voicebankLanguage}
+Pitch=150
+Speed=100
+Samples=${wavFiles.length}`);
+
             // Crear archivo setup.bat
             zip.file("setup.bat", `@echo off
 echo ===============================
@@ -134,6 +159,9 @@ echo Copiando archivos necesarios...
 copy config.json Voicebank\\
 copy oto.ini Voicebank\\
 copy voicebank_config.reg Voicebank\\
+copy voice.vvd Voicebank\\
+copy settings.v6 Voicebank\\
+copy parameters.dat Voicebank\\
 timeout /t 1 > nul
 
 echo ===============================
