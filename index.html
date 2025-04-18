@@ -94,7 +94,7 @@
                 zip.file(file.name, file);
             });
 
-            // Agregar archivo config.json
+            // Crear archivo config.json
             zip.file("config.json", JSON.stringify({
                 voicebank_name: voicebankName,
                 voicebank_gender: voicebankGender,
@@ -103,7 +103,7 @@
                 sample_files: Array.from(wavFiles).map(file => file.name),
             }, null, 4));
 
-            // Otros archivos (oto.ini, setup.bat, etc.)
+            // Otros archivos
             zip.file("oto.ini", `[Voicebank OTO]\n${Array.from(wavFiles).map(file => `${file.name}=0,0,10,100,5`).join("\n")}`);
             zip.file("setup.bat", `@echo off
 echo ===============================
