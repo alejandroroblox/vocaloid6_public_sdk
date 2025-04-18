@@ -103,8 +103,22 @@
                 sample_files: Array.from(wavFiles).map(file => file.name),
             }, null, 4));
 
-            // Otros archivos
+            // Crear archivo oto.ini
             zip.file("oto.ini", `[Voicebank OTO]\n${Array.from(wavFiles).map(file => `${file.name}=0,0,10,100,5`).join("\n")}`);
+
+            // Crear archivo voicebank_config.reg
+            zip.file("voicebank_config.reg", `Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\\Software\\Vocaloid6\\Voicebank]
+"VoicebankName"="${voicebankName}"
+"VoicebankGender"="${voicebankGender}"
+"VoiceType"="Artificial Intelligence"
+"Language"="${voicebankLanguage}"
+"ToneStyles"="${toneStyles.join(';')}"
+"Samples"="${Array.from(wavFiles).map(file => file.name).join(';')}"
+`);
+
+            // Crear archivo setup.bat
             zip.file("setup.bat", `@echo off
 echo ===============================
 echo   Instalador de Voicebank
@@ -119,9 +133,7 @@ timeout /t 1 > nul
 echo Copiando archivos necesarios...
 copy config.json Voicebank\\
 copy oto.ini Voicebank\\
-copy voice.vvd Voicebank\\
-copy settings.v6 Voicebank\\
-copy parameters.dat Voicebank\\
+copy voicebank_config.reg Voicebank\\
 timeout /t 1 > nul
 
 echo ===============================
@@ -130,25 +142,6 @@ echo ===============================
 echo Gracias por usar el instalador de ${voicebankName}!
 pause
 exit`);
-            zip.file("voice.vvd", `# Archivo VVD
-VoiceBank: ${voicebankName}
-Gender: ${voicebankGender}
-Language: ${voicebankLanguage}
-Frequency Range: 100Hz-4000Hz
-Duration: 3-5 segundos por muestra`);
-            zip.file("settings.v6", `# Archivo V6
-VoiceBankName=${voicebankName}
-VoiceBankGender=${voicebankGender}
-Language=${voicebankLanguage}
-ToneAdjustment=True
-NoiseReduction=True`);
-            zip.file("parameters.dat", `# Archivo DAT
-VoiceBank=${voicebankName}
-Gender=${voicebankGender}
-Language=${voicebankLanguage}
-Pitch=150
-Speed=100
-Samples=${wavFiles.length}`);
 
             try {
                 const zipBlob = await zip.generateAsync({ type: "blob" });
