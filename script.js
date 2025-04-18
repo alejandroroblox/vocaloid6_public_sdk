@@ -1,30 +1,41 @@
 document.getElementById("generateZip").addEventListener("click", async function () {
     const voicebankName = document.getElementById("voicebankName").value;
     const voicebankGender = document.getElementById("voicebankGender").value;
+    const voicebankLanguage = document.getElementById("voicebankLanguage").value;
 
-    if (!voicebankName) {
-        alert("Por favor, introduce el nombre del Voicebank.");
+    // Capturar los archivos WAV seleccionados
+    const wavFiles = document.getElementById("wavFiles").files;
+
+    if (!voicebankName || wavFiles.length === 0) {
+        alert("Por favor, introduce el nombre del Voicebank y selecciona al menos un archivo WAV.");
         return;
     }
 
     // Crear instancia de JSZip
     const zip = new JSZip();
 
-    // Generar contenido de archivos
+    // Agregar archivos WAV al ZIP
+    for (let i = 0; i < wavFiles.length; i++) {
+        const file = wavFiles[i];
+        zip.file(file.name, file);
+    }
+
+    // Generar contenido de archivos adicionales
     const files = [
         {
             name: "config.json",
             content: JSON.stringify({
                 voicebank_name: voicebankName,
                 voicebank_gender: voicebankGender,
+                voicebank_language: voicebankLanguage,
                 pitch: 150,
                 speed: 100,
-                sample_files: ["sample1.wav", "sample2.wav"],
+                sample_files: Array.from(wavFiles).map(file => file.name),
             }, null, 4),
         },
         {
             name: "oto.ini",
-            content: `[Voicebank OTO]\nsample1.wav=0,0,10,100,5\nsample2.wav=0,0,15,120,5`,
+            content: `[Voicebank OTO]\n${Array.from(wavFiles).map(file => `${file.name}=0,0,10,100,5`).join("\n")}`,
         },
         {
             name: "voicebank_config.reg",
@@ -35,8 +46,8 @@ document.getElementById("generateZip").addEventListener("click", async function 
 "VoicebankGender"="${voicebankGender}"
 "VoiceType"="Artificial Intelligence"
 "AIEnabled"="True"
-"Language"="Español"
-"Samples"="sample1.wav;sample2.wav"
+"Language"="${voicebankLanguage}"
+"Samples"="${Array.from(wavFiles).map(file => file.name).join(";")}"
 "ModelType"="NeuralAI"
 "Version"="6.0"
 "PitchAdjustment"="150"
@@ -68,41 +79,9 @@ echo Instalación completada. ¡Gracias por utilizar el instalador!
 pause
 exit`,
         },
-        {
-            name: "voice.vvd",
-            content: `# Archivo VVD
-# Contiene información sobre el rango de frecuencia y duración de las muestras.
-VoiceBank: ${voicebankName}
-Gender: ${voicebankGender}
-Frequency Range: 100Hz-4000Hz
-Duration: 3-5 segundos por muestra`,
-        },
-        {
-            name: "settings.v6",
-            content: `# Archivo V6
-# Configuración avanzada del Voicebank.
-[Settings]
-VoiceBankName=${voicebankName}
-VoiceBankGender=${voicebankGender}
-Language=Español
-ToneAdjustment=True
-NoiseReduction=True`,
-        },
-        {
-            name: "parameters.dat",
-            content: `# Archivo DAT
-# Parámetros personalizados del Voicebank.
-VoiceBank=${voicebankName}
-Gender=${voicebankGender}
-Pitch=150
-Speed=100
-Samples=2
-Sample1=sample1.wav
-Sample2=sample2.wav`,
-        }
     ];
 
-    // Agregar archivos al ZIP
+    // Agregar archivos adicionales al ZIP
     files.forEach(file => {
         zip.file(file.name, file.content);
     });
