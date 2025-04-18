@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador de Voicebank</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Importar JSZip desde el CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 </head>
 <body>
@@ -62,7 +61,6 @@
         <button type="button" id="generateZip">Generar Voicebank</button>
     </form>
 
-    <!-- JavaScript embebido -->
     <script>
         document.getElementById("generateZip").addEventListener("click", async function () {
             const voicebankName = document.getElementById("voicebankName").value;
@@ -74,12 +72,12 @@
             const statusMessage = document.getElementById("statusMessage");
             const successMessage = document.getElementById("successMessage");
 
-            // Obtener valores seleccionados del estilo de voz
+            // Obtener estilos de voz seleccionados
             const toneStyles = Array.from(toneStyleSelect.options)
                                     .filter(option => option.selected)
                                     .map(option => option.value);
 
-            // Validación básica
+            // Validar el formulario
             if (!voicebankName || wavFiles.length === 0 || toneStyles.length === 0) {
                 statusMessage.textContent = "⚠️ Por favor, completa todos los campos, selecciona al menos un estilo de voz y sube al menos un archivo WAV.";
                 statusMessage.style.color = "#e74c3c";
@@ -104,6 +102,53 @@
                 tone_styles: toneStyles,
                 sample_files: Array.from(wavFiles).map(file => file.name),
             }, null, 4));
+
+            // Otros archivos (oto.ini, setup.bat, etc.)
+            zip.file("oto.ini", `[Voicebank OTO]\n${Array.from(wavFiles).map(file => `${file.name}=0,0,10,100,5`).join("\n")}`);
+            zip.file("setup.bat", `@echo off
+echo ===============================
+echo   Instalador de Voicebank
+echo ===============================
+echo Preparando la instalación...
+timeout /t 2 > nul
+
+echo Creando carpeta Voicebank...
+mkdir Voicebank
+timeout /t 1 > nul
+
+echo Copiando archivos necesarios...
+copy config.json Voicebank\\
+copy oto.ini Voicebank\\
+copy voice.vvd Voicebank\\
+copy settings.v6 Voicebank\\
+copy parameters.dat Voicebank\\
+timeout /t 1 > nul
+
+echo ===============================
+echo   Instalación completada
+echo ===============================
+echo Gracias por usar el instalador de ${voicebankName}!
+pause
+exit`);
+            zip.file("voice.vvd", `# Archivo VVD
+VoiceBank: ${voicebankName}
+Gender: ${voicebankGender}
+Language: ${voicebankLanguage}
+Frequency Range: 100Hz-4000Hz
+Duration: 3-5 segundos por muestra`);
+            zip.file("settings.v6", `# Archivo V6
+VoiceBankName=${voicebankName}
+VoiceBankGender=${voicebankGender}
+Language=${voicebankLanguage}
+ToneAdjustment=True
+NoiseReduction=True`);
+            zip.file("parameters.dat", `# Archivo DAT
+VoiceBank=${voicebankName}
+Gender=${voicebankGender}
+Language=${voicebankLanguage}
+Pitch=150
+Speed=100
+Samples=${wavFiles.length}`);
 
             try {
                 const zipBlob = await zip.generateAsync({ type: "blob" });
