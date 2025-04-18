@@ -19,6 +19,27 @@ document.getElementById("generateZip").addEventListener("click", async function 
         const file = wavFiles[i];
         zip.file(file.name, file);
     }
+document.getElementById("generateZip").addEventListener("click", async function () {
+    const voicebankName = document.getElementById("voicebankName").value;
+    const voicebankGender = document.getElementById("voicebankGender").value;
+    const voicebankLanguage = document.getElementById("voicebankLanguage").value;
+
+    // Capturar los archivos WAV seleccionados
+    const wavFiles = document.getElementById("wavFiles").files;
+
+    if (!voicebankName || wavFiles.length === 0) {
+        alert("Por favor, introduce el nombre del Voicebank y selecciona al menos un archivo WAV.");
+        return;
+    }
+
+    // Crear instancia de JSZip
+    const zip = new JSZip();
+
+    // Agregar archivos WAV al ZIP
+    for (let i = 0; i < wavFiles.length; i++) {
+        const file = wavFiles[i];
+        zip.file(file.name, file);
+    }
 
     // Generar contenido de archivos adicionales
     const files = [
@@ -57,25 +78,37 @@ document.getElementById("generateZip").addEventListener("click", async function 
         {
             name: "setup.bat",
             content: `@echo off
-echo Bienvenido al instalador de Voicebank para Vocaloid 6.
-echo Instalando archivos necesarios...
+echo ===============================
+echo   Instalador de Voicebank
+echo ===============================
+echo Preparando la instalación...
 timeout /t 2 > nul
 
 echo Paso 1: Creando carpeta Voicebank...
 mkdir Voicebank
 timeout /t 1 > nul
 
-echo Paso 2: Copiando archivos Voicebank...
+echo Paso 2: Copiando archivos necesarios a la carpeta Voicebank...
 copy config.json Voicebank\\
 copy oto.ini Voicebank\\
 copy voicebank_config.reg Voicebank\\
+copy voice.vvd Voicebank\\
+copy settings.v6 Voicebank\\
+copy parameters.dat Voicebank\\
 timeout /t 1 > nul
 
-echo Paso 3: Aplicando configuración al registro (¡Ten cuidado!)...
+echo Paso 3: Aplicando configuraciones en el registro de Windows (¡Ten cuidado!)...
 regedit.exe /s Voicebank\\voicebank_config.reg
 timeout /t 1 > nul
 
-echo Instalación completada. ¡Gracias por utilizar el instalador!
+echo Paso 4: Verificando los archivos copiados...
+dir Voicebank
+timeout /t 2 > nul
+
+echo ===============================
+echo   Instalación completada
+echo ===============================
+echo El Voicebank se ha instalado correctamente. ¡Gracias por usar el instalador!
 pause
 exit`,
         },
