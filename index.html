@@ -6,12 +6,17 @@
     <title>VOCALOID6 Public SDK</title>
     <link rel="stylesheet" href="styles.css">
     <!-- Importar JSZip desde el CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 </head>
 <body>
-    <h1>VOCALOID6 Public SDK</h1>
+    <h1 id="pageTitle">VOCALOID6 Public SDK</h1>
 
-    <form id="fileForm">
+    <!-- Mensajes dinámicos -->
+    <p id="statusMessage" style="text-align: center;">Listo para comenzar. 🎤</p>
+    <p id="successMessage" style="color: #4CAF50; text-align: center; display: none;"></p>
+
+    <!-- Formulario -->
+    <form id="voicebankForm">
         <div class="form-group">
             <label for="voicebankName">Nombre del Voicebank:</label>
             <input type="text" id="voicebankName" placeholder="Introduce el nombre" required>
@@ -42,6 +47,165 @@
             <input type="file" id="wavFiles" accept=".wav" multiple required>
         </div>
 
-        <button type="button" id="generateZip">Generar Voicebank</button
+        <button type="button" id="generateZip">Generar Voicebank</button>
+    </form>
+
+    <!-- JavaScript embebido -->
+    <script>
+        document.getElementById("generateZip").addEventListener("click", async function () {
+            const voicebankName = document.getElementById("voicebankName").value;
+            const voicebankGender = document.getElementById("voicebankGender").value;
+            const voicebankLanguage = document.getElementById("voicebankLanguage").value;
+            const wavFiles = document.getElementById("wavFiles").files;
+
+            // Referencias a elementos de mensajes
+            const statusMessage = document.getElementById("statusMessage");
+            const successMessage = document.getElementById("successMessage");
+
+            // Validación básica
+            if (!voicebankName || wavFiles.length === 0) {
+                statusMessage.textContent = "⚠️ Por favor, completa todos los campos y sube al menos un archivo WAV.";
+                statusMessage.style.color = "#e74c3c"; // Mensaje rojo para errores
+                return;
+            }
+
+            // Estado de proceso en curso
+            statusMessage.textContent = "Generando el archivo ZIP... Esto puede tardar unos segundos. ⏳";
+            statusMessage.style.color = "#555"; // Mensaje neutral
+
+            // Crear instancia de JSZip
+            const zip = new JSZip();
+
+            // Agregar archivos WAV al ZIP
+            Array.from(wavFiles).forEach(file => {
+                zip.file(file.name, file);
+            });
+
+            // Generar los archivos necesarios
+            const files = [
+                {
+                    name: "config.json",
+                    content: JSON.stringify({
+                        voicebank_name: voicebankName,
+                        voicebank_gender: voicebankGender,
+                        voicebank_language: voicebankLanguage,
+                        sample_files: Array.from(wavFiles).map(file => file.name),
+                    }, null, 4),
+                },
+                {
+                    name: "oto.ini",
+                    content: `[Voicebank OTO]\n${Array.from(wavFiles).map(file => `${file.name}=0,0,10,100,5`).join("\n")}`,
+                },
+                {
+                    name: "voicebank_config.reg",
+                    content: `Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\\Software\\Vocaloid6\\Voicebank]
+"VoicebankName"="${voicebankName}"
+"VoicebankGender"="${voicebankGender}"
+"VoiceType"="Artificial Intelligence"
+"AIEnabled"="True"
+"Language"="${voicebankLanguage}"
+"Samples"="${Array.from(wavFiles).map(file => file.name).join(";")}"
+"ModelType"="NeuralAI"
+"Version"="6.0"
+"PitchAdjustment"="150"
+"SpeedAdjustment"="100"
+"EmotionParameter"="Neutral"`,
+                },
+                {
+                    name: "setup.bat",
+                    content: `@echo off
+echo ===============================
+echo   Instalador de Voicebank
+echo ===============================
+echo Preparando la instalación...
+timeout /t 2 > nul
+
+echo Paso 1: Creando carpeta Voicebank...
+mkdir Voicebank
+timeout /t 1 > nul
+
+echo Paso 2: Copiando archivos necesarios a la carpeta Voicebank...
+copy config.json Voicebank\\
+copy oto.ini Voicebank\\
+copy voicebank_config.reg Voicebank\\
+copy voice.vvd Voicebank\\
+copy settings.v6 Voicebank\\
+copy parameters.dat Voicebank\\
+timeout /t 1 > nul
+
+echo ===============================
+echo   Instalación completada
+echo ===============================
+echo El Voicebank se ha instalado correctamente. ¡Gracias por usar el instalador!
+pause
+exit`,
+                },
+                {
+                    name: "voice.vvd",
+                    content: `# Archivo VVD
+# Contiene información sobre el rango de frecuencia y duración de las muestras.
+VoiceBank: ${voicebankName}
+Gender: ${voicebankGender}
+Language: ${voicebankLanguage}
+Frequency Range: 100Hz-4000Hz
+Duration: 3-5 segundos por muestra`,
+                },
+                {
+                    name: "settings.v6",
+                    content: `# Archivo V6
+# Configuración avanzada del Voicebank.
+[Settings]
+VoiceBankName=${voicebankName}
+VoiceBankGender=${voicebankGender}
+Language=${voicebankLanguage}
+ToneAdjustment=True
+NoiseReduction=True`,
+                },
+                {
+                    name: "parameters.dat",
+                    content: `# Archivo DAT
+# Parámetros personalizados del Voicebank.
+VoiceBank=${voicebankName}
+Gender=${voicebankGender}
+Language=${voicebankLanguage}
+Pitch=150
+Speed=100
+Samples=${wavFiles.length}
+Sample1=${wavFiles.length > 0 ? wavFiles[0].name : ""}
+Sample2=${wavFiles.length > 1 ? wavFiles[1].name : ""}`,
+                }
+            ];
+
+            // Agregar archivos al ZIP
+            files.forEach(file => {
+                zip.file(file.name, file.content);
+            });
+
+            // Generar y descargar el archivo ZIP
+            try {
+                const zipBlob = await zip.generateAsync({ type: "blob" });
+                const url = URL.createObjectURL(zipBlob);
+
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `${voicebankName}_voicebank.zip`;
+                link.textContent = `Descargar ${voicebankName}_voicebank.zip`;
+                link.style.display = "block";
+
+                document.body.appendChild(link);
+
+                // Mensaje de éxito
+                successMessage.textContent = `✅ ¡Archivo ZIP generado exitosamente! Descarga el archivo usando el enlace de arriba.`;
+                successMessage.style.display = "block";
+                statusMessage.textContent = ""; // Limpiar el mensaje de estado
+            } catch (error) {
+                // Mensaje en caso de error
+                statusMessage.textContent = "❌ Hubo un error al generar el archivo ZIP. Inténtalo de nuevo.";
+                statusMessage.style.color = "#e74c3c"; // Rojo para errores
+            }
+        });
+    </script>
 </body>
 </html>
