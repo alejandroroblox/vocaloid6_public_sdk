@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">b
-    <title>VOCALOID6 Public SDK</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creador de Voicebank</title>
     <link rel="stylesheet" href="styles.css">
     <!-- Importar JSZip desde el CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -26,7 +26,12 @@
             </select>
         </div>
 
-        <button type="button" id="generateZip">Generar Voicebank</button>
+        <div class="form-group">
+            <label for="wavFiles">Archivos WAV:</label>
+            <input type="file" id="wavFiles" accept=".wav" multiple required>
+        </div>
+
+        <button type="button" id="generateZip">Generar ZIP</button>
     </form>
 
     <script src="script.js"></script>
