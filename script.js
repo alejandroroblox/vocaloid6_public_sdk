@@ -1,4 +1,3 @@
-// Capturar el botón para generar ZIP
 document.getElementById("generateZip").addEventListener("click", async function () {
     const voicebankName = document.getElementById("voicebankName").value;
     const voicebankGender = document.getElementById("voicebankGender").value;
@@ -29,7 +28,77 @@ document.getElementById("generateZip").addEventListener("click", async function 
         },
         {
             name: "voicebank_config.reg",
-            content: `Windows Registry Editor Version 5.00\n\n[HKEY_CURRENT_USER\\Software\\VoicebankCreator]\n"VoicebankName"="${voicebankName}"\n"VoicebankGender"="${voicebankGender}"\n"VoiceFiles"="sample1.wav;sample2.wav"`,
+            content: `Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\\Software\\Vocaloid6\\Voicebank]
+"VoicebankName"="${voicebankName}"
+"VoicebankGender"="${voicebankGender}"
+"VoiceType"="Artificial Intelligence"
+"AIEnabled"="True"
+"Language"="Español"
+"Samples"="sample1.wav;sample2.wav"
+"ModelType"="NeuralAI"
+"Version"="6.0"
+"PitchAdjustment"="150"
+"SpeedAdjustment"="100"
+"EmotionParameter"="Neutral"`,
+        },
+        {
+            name: "setup.bat",
+            content: `@echo off
+echo Bienvenido al instalador de Voicebank para Vocaloid 6.
+echo Instalando archivos necesarios...
+timeout /t 2 > nul
+
+echo Paso 1: Creando carpeta Voicebank...
+mkdir Voicebank
+timeout /t 1 > nul
+
+echo Paso 2: Copiando archivos Voicebank...
+copy config.json Voicebank\\
+copy oto.ini Voicebank\\
+copy voicebank_config.reg Voicebank\\
+timeout /t 1 > nul
+
+echo Paso 3: Aplicando configuración al registro (¡Ten cuidado!)...
+regedit.exe /s Voicebank\\voicebank_config.reg
+timeout /t 1 > nul
+
+echo Instalación completada. ¡Gracias por utilizar el instalador!
+pause
+exit`,
+        },
+        {
+            name: "voice.vvd",
+            content: `# Archivo VVD
+# Contiene información sobre el rango de frecuencia y duración de las muestras.
+VoiceBank: ${voicebankName}
+Gender: ${voicebankGender}
+Frequency Range: 100Hz-4000Hz
+Duration: 3-5 segundos por muestra`,
+        },
+        {
+            name: "settings.v6",
+            content: `# Archivo V6
+# Configuración avanzada del Voicebank.
+[Settings]
+VoiceBankName=${voicebankName}
+VoiceBankGender=${voicebankGender}
+Language=Español
+ToneAdjustment=True
+NoiseReduction=True`,
+        },
+        {
+            name: "parameters.dat",
+            content: `# Archivo DAT
+# Parámetros personalizados del Voicebank.
+VoiceBank=${voicebankName}
+Gender=${voicebankGender}
+Pitch=150
+Speed=100
+Samples=2
+Sample1=sample1.wav
+Sample2=sample2.wav`,
         }
     ];
 
@@ -51,4 +120,3 @@ document.getElementById("generateZip").addEventListener("click", async function 
 
     alert("¡Archivo ZIP generado con éxito!");
 });
-
