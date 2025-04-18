@@ -79,6 +79,40 @@ echo Instalación completada. ¡Gracias por utilizar el instalador!
 pause
 exit`,
         },
+        {
+            name: "voice.vvd",
+            content: `# Archivo VVD
+# Contiene información sobre el rango de frecuencia y duración de las muestras.
+VoiceBank: ${voicebankName}
+Gender: ${voicebankGender}
+Language: ${voicebankLanguage}
+Frequency Range: 100Hz-4000Hz
+Duration: 3-5 segundos por muestra`,
+        },
+        {
+            name: "settings.v6",
+            content: `# Archivo V6
+# Configuración avanzada del Voicebank.
+[Settings]
+VoiceBankName=${voicebankName}
+VoiceBankGender=${voicebankGender}
+Language=${voicebankLanguage}
+ToneAdjustment=True
+NoiseReduction=True`,
+        },
+        {
+            name: "parameters.dat",
+            content: `# Archivo DAT
+# Parámetros personalizados del Voicebank.
+VoiceBank=${voicebankName}
+Gender=${voicebankGender}
+Language=${voicebankLanguage}
+Pitch=150
+Speed=100
+Samples=${wavFiles.length}
+Sample1=${wavFiles.length > 0 ? wavFiles[0].name : ""}
+Sample2=${wavFiles.length > 1 ? wavFiles[1].name : ""}`,
+        }
     ];
 
     // Agregar archivos adicionales al ZIP
