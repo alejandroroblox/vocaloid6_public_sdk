@@ -22,15 +22,6 @@
         </div>
 
         <div class="form-group">
-            <label for="voicebankGender">Género del Voicebank:</label>
-            <select id="voicebankGender" required>
-                <option value="Femenino">Femenino</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Otro">Otro</option>
-            </select>
-        </div>
-
-        <div class="form-group">
             <label for="voicebankLanguage">Idioma del Voicebank:</label>
             <select id="voicebankLanguage" required>
                 <option value="Español">Español</option>
@@ -38,18 +29,6 @@
                 <option value="Japonés">Japonés</option>
                 <option value="Chino">Chino</option>
                 <option value="Coreano">Coreano</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="toneStyle">Estilo de Voz (Selecciona uno o más):</label>
-            <select id="toneStyle" multiple required>
-                <option value="Normal">Normal</option>
-                <option value="Suave">Suave</option>
-                <option value="Fuerte">Fuerte</option>
-                <option value="Robótico">Robótico</option>
-                <option value="Dramático">Dramático</option>
-                <option value="Natural">Natural</option>
             </select>
         </div>
 
@@ -64,22 +43,15 @@
     <script>
         document.getElementById("generateZip").addEventListener("click", async function () {
             const voicebankName = document.getElementById("voicebankName").value;
-            const voicebankGender = document.getElementById("voicebankGender").value;
             const voicebankLanguage = document.getElementById("voicebankLanguage").value;
-            const toneStyleSelect = document.getElementById("toneStyle");
             const wavFiles = document.getElementById("wavFiles").files;
 
             const statusMessage = document.getElementById("statusMessage");
             const successMessage = document.getElementById("successMessage");
 
-            // Obtener estilos de voz seleccionados
-            const toneStyles = Array.from(toneStyleSelect.options)
-                                    .filter(option => option.selected)
-                                    .map(option => option.value);
-
             // Validar el formulario
-            if (!voicebankName || wavFiles.length === 0 || toneStyles.length === 0) {
-                statusMessage.textContent = "⚠️ Por favor, completa todos los campos, selecciona al menos un estilo de voz y sube al menos un archivo WAV.";
+            if (!voicebankName || wavFiles.length === 0) {
+                statusMessage.textContent = "⚠️ Por favor, completa todos los campos y sube al menos un archivo WAV.";
                 statusMessage.style.color = "#e74c3c";
                 return;
             }
@@ -94,86 +66,35 @@
                 zip.file(file.name, file);
             });
 
-            // Crear archivo config.json
-            zip.file("config.json", JSON.stringify({
-                voicebank_name: voicebankName,
-                voicebank_gender: voicebankGender,
-                voicebank_language: voicebankLanguage,
-                tone_styles: toneStyles,
-                sample_files: Array.from(wavFiles).map(file => file.name),
-            }, null, 4));
-
-            // Crear archivo oto.ini
-            zip.file("oto.ini", `[Voicebank OTO]\n${Array.from(wavFiles).map(file => `${file.name}=0,0,10,100,5`).join("\n")}`);
-
-            // Crear archivo voicebank_config.reg
-            zip.file("voicebank_config.reg", `Windows Registry Editor Version 5.00
-
-[HKEY_LOCAL_MACHINE\\SOFTWARE\\VOCALOID6\\Voicebanks\\${voicebankName}]
-"VoicebankPath"="C:\\Program Files\\VOCALOID6\\Voicebanks\\${voicebankName}"
-"VoicebankType"="Artificial Intelligence"
-"CharacterName"="${voicebankName}"
-"Language"="${voicebankLanguage}"
-"Version"="6.0.0"
-"ModelType"="Neural Network"
-"SampleRate"="48000"
-"Description"="Voicebank creado por Alejandro para VOCALOID6 usando IA"
-"PitchAdjustment"="150"
-"SpeedAdjustment"="100"
-"EmotionParameter"="Neutral"
-"AIEnabled"="1"
-`);
-
-            // Crear archivo voice.vvd
-            zip.file("voice.vvd", `# Archivo VVD
-VoiceBank: ${voicebankName}
-Gender: ${voicebankGender}
-Language: ${voicebankLanguage}
-Frequency Range: 100Hz-4000Hz
-Duration: 3-5 segundos por muestra`);
-
-            // Crear archivo settings.v6
-            zip.file("settings.v6", `# Archivo V6
-VoiceBankName=${voicebankName}
-VoiceBankGender=${voicebankGender}
-Language=${voicebankLanguage}
-ToneAdjustment=True
-NoiseReduction=True`);
-
-            // Crear archivo parameters.dat
-            zip.file("parameters.dat", `# Archivo DAT
-VoiceBank=${voicebankName}
-Gender=${voicebankGender}
-Language=${voicebankLanguage}
-Pitch=150
-Speed=100
-Samples=${wavFiles.length}`);
-
             // Crear archivo setup.bat
             zip.file("setup.bat", `@echo off
 echo ===============================
-echo   Instalador de Voicebank
+echo       Instalador de Voicebank
 echo ===============================
-echo Preparando la instalación...
-timeout /t 2 > nul
+echo.
 
-echo Creando carpeta Voicebank...
-mkdir Voicebank
-timeout /t 1 > nul
+:: Configuración de parámetros
+set VOICE_NAME=${voicebankName}
+set VOICE_LANGUAGE=${voicebankLanguage}
 
-echo Copiando archivos necesarios...
-copy config.json Voicebank\\
-copy oto.ini Voicebank\\
-copy voicebank_config.reg Voicebank\\
-copy voice.vvd Voicebank\\
-copy settings.v6 Voicebank\\
-copy parameters.dat Voicebank\\
-timeout /t 1 > nul
+cd /d %~dp0
+cd ..
+set VOICE_PATH=%cd%
+echo Path del Voicebank: %VOICE_PATH%
 
-echo ===============================
-echo   Instalación completada
-echo ===============================
-echo Gracias por usar el instalador de ${voicebankName}!
+set VOCALOIDDIR=HKEY_LOCAL_MACHINE\\SOFTWARE\\VOCALOID6\\Voice
+
+if %PROCESSOR_ARCHITECTURE%==x86 (set reg3264= ) else (set reg3264=/reg:32)
+
+:: Agregar claves al registro de Windows
+reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Path /T REG_SZ /D "%VOICE_PATH%" %reg3264%
+reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Installed /T REG_DWORD /D 1 %reg3264%
+reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Name /T REG_SZ /D "%VOICE_NAME%" %reg3264%
+reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Language /T REG_SZ /D "%VOICE_LANGUAGE%" %reg3264%
+reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V SampleRate /T REG_DWORD /D 48000 %reg3264%
+
+:: Mensaje de instalación exitosa
+echo Voicebank "%VOICE_NAME%" instalado correctamente en VOCALOID6.
 pause
 exit`);
 
