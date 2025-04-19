@@ -109,13 +109,19 @@
             // Crear archivo voicebank_config.reg
             zip.file("voicebank_config.reg", `Windows Registry Editor Version 5.00
 
-[HKEY_CURRENT_USER\\Software\\Vocaloid6\\Voicebank]
-"VoicebankName"="${voicebankName}"
-"VoicebankGender"="${voicebankGender}"
-"VoiceType"="Artificial Intelligence"
+[HKEY_LOCAL_MACHINE\\SOFTWARE\\VOCALOID6\\Voicebanks\\${voicebankName}]
+"VoicebankPath"="C:\\Program Files\\VOCALOID6\\Voicebanks\\${voicebankName}"
+"VoicebankType"="Artificial Intelligence"
+"CharacterName"="${voicebankName}"
 "Language"="${voicebankLanguage}"
-"ToneStyles"="${toneStyles.join(';')}"
-"Samples"="${Array.from(wavFiles).map(file => file.name).join(';')}"
+"Version"="6.0.0"
+"ModelType"="Neural Network"
+"SampleRate"="48000"
+"Description"="Voicebank creado por Alejandro para VOCALOID6 usando IA"
+"PitchAdjustment"="150"
+"SpeedAdjustment"="100"
+"EmotionParameter"="Neutral"
+"AIEnabled"="1"
 `);
 
             // Crear archivo voice.vvd
