@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOCALOID6 Public SDK</title>
+    <title>VOCALOID6 Voicebank Generator</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 </head>
 <body>
-    <h1 id="pageTitle">VOCALOID6 Public SDK</h1>
+    <h1 id="pageTitle">VOCALOID6 Voicebank Generator</h1>
 
     <!-- Mensajes dinámicos -->
-    <p id="statusMessage" style="text-align: center;">Listo para comenzar. 🎤</p>
-    <p id="successMessage" style="color: #4CAF50; text-align: center; display: none;"></p>
+    <p id="statusMessage" style="text-align: center;">Preparado para generar tu Voicebank. 🎤</p>
+    <p id="successMessage" style="color: #4CAF50; text-align: center; display: none;">¡Generado con éxito!</p>
 
     <!-- Formulario -->
     <form id="voicebankForm">
@@ -66,6 +66,33 @@
                 zip.file(file.name, file);
             });
 
+            // Crear archivo config.json
+            zip.file("config.json", JSON.stringify({
+                voicebank_name: voicebankName,
+                voicebank_language: voicebankLanguage,
+                sample_files: Array.from(wavFiles).map(file => file.name),
+            }, null, 4));
+
+            // Crear archivo oto.ini
+            zip.file("oto.ini", `[Voicebank OTO]\n${Array.from(wavFiles).map(file => `${file.name}=0,0,10,100,5`).join("\n")}`);
+
+            // Crear archivo voice.vvd
+            zip.file("voice.vvd", `# Archivo VVD
+VoiceBank: ${voicebankName}
+Language: ${voicebankLanguage}
+Frequency Range: 100Hz-4000Hz`);
+
+            // Crear archivo settings.v6
+            zip.file("settings.v6", `# Archivo V6
+VoiceBankName=${voicebankName}
+Language=${voicebankLanguage}`);
+
+            // Crear archivo parameters.dat
+            zip.file("parameters.dat", `# Archivo DAT
+VoiceBank=${voicebankName}
+Language=${voicebankLanguage}
+Samples=${wavFiles.length}`);
+
             // Crear archivo setup.bat
             zip.file("setup.bat", `@echo off
 echo ===============================
@@ -76,6 +103,7 @@ echo.
 :: Configuración de parámetros
 set VOICE_NAME=${voicebankName}
 set VOICE_LANGUAGE=${voicebankLanguage}
+set AUTHORIZER=Alejandro
 
 cd /d %~dp0
 cd ..
@@ -91,6 +119,7 @@ reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Path /T REG_SZ /D "%VOICE_PATH%" %re
 reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Installed /T REG_DWORD /D 1 %reg3264%
 reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Name /T REG_SZ /D "%VOICE_NAME%" %reg3264%
 reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Language /T REG_SZ /D "%VOICE_LANGUAGE%" %reg3264%
+reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Authorizer /T REG_SZ /D "%AUTHORIZER%" %reg3264%
 reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V SampleRate /T REG_DWORD /D 48000 %reg3264%
 
 :: Mensaje de instalación exitosa
