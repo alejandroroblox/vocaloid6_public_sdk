@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOCALOID6 Voicebank Generator</title>
+    <title>VOCALOID6 Public SDK</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 </head>
 <body>
-    <h1 id="pageTitle">VOCALOID6 Voicebank Generator</h1>
+    <h1 id="pageTitle">VOCALOID6 Public SDK</h1>
 
     <!-- Mensajes dinámicos -->
     <p id="statusMessage" style="text-align: center;">Preparado para generar tu Voicebank. 🎤</p>
-    <p id="successMessage" style="color: #4CAF50; text-align: center; display: none;">¡Generado con éxito!</p>
+    <p id="successMessage" style="color: #4CAF50; text-align: center; display: none;">¡Voicebank generado exitosamente!</p>
 
     <!-- Formulario -->
     <form id="voicebankForm">
         <div class="form-group">
             <label for="voicebankName">Nombre del Voicebank:</label>
-            <input type="text" id="voicebankName" placeholder="Introduce el nombre" required>
+            <input type="text" id="voicebankName" placeholder="Introduce el nombre del Voicebank" required>
         </div>
 
         <div class="form-group">
@@ -42,14 +42,14 @@
 
     <script>
         document.getElementById("generateZip").addEventListener("click", async function () {
-            const voicebankName = document.getElementById("voicebankName").value;
+            const voicebankName = document.getElementById("voicebankName").value.trim();
             const voicebankLanguage = document.getElementById("voicebankLanguage").value;
             const wavFiles = document.getElementById("wavFiles").files;
 
             const statusMessage = document.getElementById("statusMessage");
             const successMessage = document.getElementById("successMessage");
 
-            // Validar el formulario
+            // Validación del formulario
             if (!voicebankName || wavFiles.length === 0) {
                 statusMessage.textContent = "⚠️ Por favor, completa todos los campos y sube al menos un archivo WAV.";
                 statusMessage.style.color = "#e74c3c";
@@ -69,7 +69,7 @@
             // Crear archivo config.json
             zip.file("config.json", JSON.stringify({
                 voicebank_name: voicebankName,
-                voicebank_language: voicebankLanguage,
+                language: voicebankLanguage,
                 sample_files: Array.from(wavFiles).map(file => file.name),
             }, null, 4));
 
@@ -103,7 +103,7 @@ echo.
 :: Configuración de parámetros
 set VOICE_NAME=${voicebankName}
 set VOICE_LANGUAGE=${voicebankLanguage}
-set AUTHORIZER=Alejandro
+set AUTHORIZER=Generador
 
 cd /d %~dp0
 cd ..
@@ -133,8 +133,8 @@ exit`);
 
                 const link = document.createElement("a");
                 link.href = url;
-                link.download = `${voicebankName}_voicebank.zip`;
-                link.textContent = `Descargar ${voicebankName}_voicebank.zip`;
+                link.download = `${voicebankName}.zip`;
+                link.textContent = `Descargar ${voicebankName}.zip`;
                 link.style.display = "block";
 
                 document.body.appendChild(link);
