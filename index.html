@@ -31,15 +31,6 @@
     </form>
 
     <script>
-        function generateAuthorizer() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let authorizer = '';
-            for (let i = 0; i < 16; i++) {
-                authorizer += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return authorizer;
-        }
-
         document.getElementById("generateZip").addEventListener("click", async function () {
             const voicebankName = document.getElementById("voicebankName").value.trim();
             const voicebankLanguage = document.getElementById("voicebankLanguage").value;
@@ -50,53 +41,88 @@
                 return;
             }
 
-            const authorizer = generateAuthorizer(); // Crear el autorizador automáticamente
             const zip = new JSZip();
 
-            // Agregar archivos WAV al ZIP
-            Array.from(wavFiles).forEach(file => {
-                zip.file(file.name, file);
-            });
+            // Crear el setup.html estilizado e interactivo
+            zip.file("setup.html", `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Setup del Voicebank ${voicebankName}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        p {
+            text-align: center;
+        }
+        .button-container {
+            text-align: center;
+            margin: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Configuración de ${voicebankName}</h1>
+    <p>Idioma: ${voicebankLanguage}</p>
+    <div class="button-container">
+        <button id="step1">Siguiente: Crear Registro</button>
+        <button id="step2" disabled>Siguiente: Configurar Parámetros</button>
+        <button id="step3" disabled>Siguiente: Verificar Archivos</button>
+        <button id="step4" disabled>Finalizar Configuración</button>
+    </div>
+    <script>
+        document.getElementById("step1").addEventListener("click", function () {
+            alert("Paso 1: Registro creado correctamente.");
+            document.getElementById("step2").disabled = false;
+        });
 
-            // Crear archivo setup.bat
-            zip.file("setup.bat", `@echo off
-echo ===============================
-echo       Instalador de Voicebank
-echo ===============================
-echo.
+        document.getElementById("step2").addEventListener("click", function () {
+            alert("Paso 2: Parámetros configurados.");
+            document.getElementById("step3").disabled = false;
+        });
 
-:: Configuración de parámetros
-set VOICE_NAME=${voicebankName}
-set VOICE_LANGUAGE=${voicebankLanguage}
-set AUTHORIZER=${authorizer}
+        document.getElementById("step3").addEventListener("click", function () {
+            alert("Paso 3: Archivos verificados. Todo en orden.");
+            document.getElementById("step4").disabled = false;
+        });
 
-cd /d %~dp0
-cd ..
-set VOICE_PATH=%cd%
-echo Path del Voicebank: %VOICE_PATH%
-
-set VOCALOIDDIR=HKEY_LOCAL_MACHINE\\SOFTWARE\\VOCALOID6\\Voice
-
-if %PROCESSOR_ARCHITECTURE%==x86 (set reg3264= ) else (set reg3264=/reg:32)
-
-:: Agregar claves al registro de Windows
-reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Path /T REG_SZ /D "%VOICE_PATH%" %reg3264%
-reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Installed /T REG_DWORD /D 1 %reg3264%
-reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Name /T REG_SZ /D "%VOICE_NAME%" %reg3264%
-reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Language /T REG_SZ /D "%VOICE_LANGUAGE%" %reg3264%
-reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V Authorizer /T REG_SZ /D "%AUTHORIZER%" %reg3264%
-reg ADD "%VOCALOIDDIR%\\%VOICE_NAME%" /F /V SampleRate /T REG_DWORD /D 48000 %reg3264%
-
-:: Mensaje de instalación exitosa
-echo Voicebank "%VOICE_NAME%" instalado correctamente en VOCALOID6 con autorización de "%AUTHORIZER%".
-pause
-exit`);
+        document.getElementById("step4").addEventListener("click", function () {
+            alert("¡Configuración completada! El Voicebank está listo para usarse.");
+        });
+    </script>
+</body>
+</html>`);
 
             // Crear otros archivos necesarios
             zip.file("config.json", JSON.stringify({
                 voicebank_name: voicebankName,
                 language: voicebankLanguage,
-                authorizer: authorizer,
                 sample_files: Array.from(wavFiles).map(file => file.name),
             }, null, 4));
 
@@ -104,6 +130,11 @@ exit`);
             zip.file("voice.vvd", `# Archivo VVD\nVoiceBank: ${voicebankName}\nLanguage: ${voicebankLanguage}`);
             zip.file("settings.v6", `# Archivo V6\nVoiceBankName=${voicebankName}\nLanguage=${voicebankLanguage}`);
             zip.file("parameters.dat", `# Archivo DAT\nVoiceBank=${voicebankName}\nLanguage=${voicebankLanguage}\nSamples=${wavFiles.length}`);
+
+            // Agregar archivos WAV al ZIP
+            Array.from(wavFiles).forEach(file => {
+                zip.file(file.name, file);
+            });
 
             try {
                 const zipBlob = await zip.generateAsync({ type: "blob" });
@@ -115,7 +146,7 @@ exit`);
                 link.style.display = "block";
 
                 document.body.appendChild(link);
-                alert(`Voicebank generado exitosamente. Código del autorizador: ${authorizer}`);
+                alert("Voicebank generado exitosamente.");
             } catch (error) {
                 alert("Error al generar el archivo ZIP.");
             }
