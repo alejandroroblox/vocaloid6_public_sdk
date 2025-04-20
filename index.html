@@ -11,7 +11,7 @@
     <h1 id="pageTitle">VOCALOID6 Public SDK</h1>
 
     <!-- Mensajes dinámicos -->
-    <p id="statusMessage" style="text-align: center;">Preparado para generar tu Voicebank. 🎤</p>
+    <p id="statusMessage" style="text-align: center;">Listo para generar tu Voicebank. 🎤</p>
     <p id="successMessage" style="color: #4CAF50; text-align: center; display: none;">¡Voicebank generado exitosamente!</p>
 
     <!-- Formulario -->
@@ -133,8 +133,8 @@ exit`);
 
                 const link = document.createElement("a");
                 link.href = url;
-                link.download = `${voicebankName}.zip`;
-                link.textContent = `Descargar ${voicebankName}.zip`;
+                link.download = `${voicebankName}_voicebank.zip`;
+                link.textContent = `Descargar ${voicebankName}_voicebank.zip`;
                 link.style.display = "block";
 
                 document.body.appendChild(link);
